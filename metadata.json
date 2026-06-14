@@ -1,0 +1,6 @@
+{
+  "name": "GymFlex",
+  "description": "Modern gym SaaS featuring a zero-friction QR-based device check-in system, interactive owner dashboards, real-time analytics, member management, and the master engineering build plan tracker.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
