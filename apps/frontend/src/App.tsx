@@ -46,7 +46,7 @@ import {
   AuditLog,
   BuildPhase,
   BuildStep,
-} from "./types";
+} from "@gymflex/shared";
 import {
   initialGymInfo,
   initialPlans,

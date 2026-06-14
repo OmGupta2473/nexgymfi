@@ -1,4 +1,4 @@
-import { BuildPhase, Plan, Member, MembershipStatus, GymInfo, Payment, AttendanceRecord, AuditLog } from "./types";
+import { BuildPhase, Plan, Member, MembershipStatus, GymInfo, Payment, AttendanceRecord, AuditLog } from "@gymflex/shared";
 
 export const initialGymInfo: GymInfo = {
   name: "GymFlex Patna",
