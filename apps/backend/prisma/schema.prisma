@@ -84,6 +84,12 @@ enum AuditAction {
   DELETE
 }
 
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
 model Gym {
   id String @id @default(uuid())
 
@@ -158,6 +164,7 @@ model Member {
   name  String
   phone String
   email String?
+  gender String?
 
   photoUrl         String?
   emergencyContact String?
@@ -170,7 +177,7 @@ model Member {
   updatedAt DateTime @updatedAt
 
   memberships Membership[]
-  payments    Payment[]
+  payments    Payment[] 
 
   attendance    Attendance[]
   devices       MemberDevice[]

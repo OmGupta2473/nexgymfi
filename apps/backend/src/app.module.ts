@@ -22,6 +22,8 @@ import { ThrottlerModule } from '@nestjs/throttler';
 
 import { PlansModule } from './plans/plans.module';
 
+import { MembersModule } from './members/members.module';
+
 @Module({
   imports: [
   ConfigModule.forRoot({
@@ -41,6 +43,7 @@ import { PlansModule } from './plans/plans.module';
   UsersModule,
   AuthModule,
   PlansModule,
+  MembersModule,
   ],
   controllers: [AppController],
   providers: [AppService, {
