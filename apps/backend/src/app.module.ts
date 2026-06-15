@@ -20,12 +20,15 @@ import { RolesGuard } from './auth/guards/roles.guard';
 
 import { ThrottlerModule } from '@nestjs/throttler';
 
+import { PlansModule } from './plans/plans.module';
+
 @Module({
   imports: [
   ConfigModule.forRoot({
     isGlobal: true,
     load: [configuration],
     validationSchema: envValidationSchema,
+    
   }),
 
   ThrottlerModule.forRoot([
@@ -37,6 +40,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
   PrismaModule,
   UsersModule,
   AuthModule,
+  PlansModule,
   ],
   controllers: [AppController],
   providers: [AppService, {
