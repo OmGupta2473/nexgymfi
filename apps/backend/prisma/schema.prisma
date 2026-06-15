@@ -6,3 +6,362 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum Role {
+  OWNER
+  MANAGER
+  RECEPTIONIST
+}
+
+enum SubscriptionPlan {
+  FREE
+  GROWTH
+  PRO
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+enum MembershipStatus {
+  ACTIVE
+  EXPIRED
+  FROZEN
+  CANCELLED
+}
+
+enum PaymentType {
+  NEW_MEMBERSHIP
+  RENEWAL
+  PARTIAL
+  REFUND
+}
+
+enum PaymentMethod {
+  CASH
+  UPI
+  CARD
+  OTHER
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum AttendanceSource {
+  QR_AUTO
+  QR_MANUAL
+  ADMIN
+}
+
+enum NotificationType {
+  RENEWAL_REMINDER
+  EXPIRY_ALERT
+  INACTIVE_ALERT
+  WELCOME
+}
+
+enum NotificationChannel {
+  WHATSAPP
+  SMS
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+model Gym {
+  id String @id @default(uuid())
+
+  name String
+  slug String @unique
+
+  phone    String?
+  address  String?
+  timezone String  @default("Asia/Kolkata")
+  logoUrl  String?
+
+  subscriptionPlan   SubscriptionPlan   @default(FREE)
+  subscriptionStatus SubscriptionStatus @default(TRIAL)
+  trialEndsAt        DateTime?
+
+  qrEnabled             Boolean @default(true)
+  allowManualCheckin    Boolean @default(true)
+  inactiveDaysThreshold Int     @default(30)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  users       User[]
+  members     Member[]
+  plans       Plan[]
+  memberships Membership[]
+  payments    Payment[]
+
+  attendance    Attendance[]
+  memberDevices MemberDevice[]
+  notifications Notification[]
+  auditLogs     AuditLog[]
+}
+
+model User {
+  id String @id @default(uuid())
+
+  gymId String
+  gym   Gym    @relation(fields: [gymId], references: [id])
+
+  email        String
+  passwordHash String
+
+  name String
+
+  role Role @default(OWNER)
+
+  isActive    Boolean   @default(true)
+  lastLoginAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  payments  Payment[]
+  auditLogs AuditLog[]
+
+  createdMemberships Membership[]
+
+  @@unique([gymId, email])
+  @@index([gymId])
+}
+
+model Member {
+  id String @id @default(uuid())
+
+  gymId String
+  gym   Gym    @relation(fields: [gymId], references: [id])
+
+  name  String
+  phone String
+  email String?
+
+  photoUrl         String?
+  emergencyContact String?
+
+  joinedAt DateTime @default(now())
+
+  deletedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  memberships Membership[]
+  payments    Payment[]
+
+  attendance    Attendance[]
+  devices       MemberDevice[]
+  notifications Notification[]
+
+  @@unique([gymId, phone])
+  @@index([gymId])
+  @@index([gymId, deletedAt])
+}
+
+model Plan {
+  id String @id @default(uuid())
+
+  gymId String
+  gym   Gym    @relation(fields: [gymId], references: [id])
+
+  name String
+
+  durationDays Int
+
+  price Decimal @db.Decimal(10, 2)
+
+  description String?
+
+  isActive Boolean @default(true)
+
+  archivedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  memberships Membership[]
+
+  @@unique([gymId, name])
+  @@index([gymId, isActive])
+}
+
+model Membership {
+  id String @id @default(uuid())
+
+  gymId String
+  gym   Gym    @relation(fields: [gymId], references: [id])
+
+  memberId String
+  member   Member @relation(fields: [memberId], references: [id])
+
+  planId String
+  plan   Plan   @relation(fields: [planId], references: [id])
+
+  startDate     DateTime
+  endDate       DateTime
+  extendedUntil DateTime?
+
+  status MembershipStatus @default(ACTIVE)
+
+  frozenAt   DateTime?
+  freezeDays Int       @default(0)
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  payments Payment[]
+
+  @@index([gymId, status])
+  @@index([gymId, endDate])
+  @@index([memberId])
+}
+
+model Payment {
+  id String @id @default(uuid())
+
+  gymId String
+  gym   Gym    @relation(fields: [gymId], references: [id])
+
+  memberId String
+  member   Member @relation(fields: [memberId], references: [id])
+
+  membershipId String?
+  membership   Membership? @relation(fields: [membershipId], references: [id])
+
+  recordedById String
+  recordedBy   User   @relation(fields: [recordedById], references: [id])
+
+  amount Decimal @db.Decimal(10, 2)
+
+  type   PaymentType
+  method PaymentMethod
+  status PaymentStatus @default(COMPLETED)
+
+  receiptNumber String? @unique
+
+  notes String?
+
+  paidAt    DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  @@index([gymId, paidAt])
+  @@index([memberId])
+}
+
+model Attendance {
+  id String @id @default(uuid())
+
+  gymId String
+  gym   Gym    @relation(fields: [gymId], references: [id])
+
+  memberId String
+  member   Member @relation(fields: [memberId], references: [id])
+
+  checkedInAt DateTime @default(now())
+
+  source AttendanceSource @default(QR_AUTO)
+
+  createdAt DateTime @default(now())
+
+  @@index([gymId, checkedInAt])
+  @@index([memberId, checkedInAt])
+}
+
+model MemberDevice {
+  id String @id @default(uuid())
+
+  gymId String
+  gym   Gym    @relation(fields: [gymId], references: [id])
+
+  memberId String
+  member   Member @relation(fields: [memberId], references: [id])
+
+  deviceToken String
+  fingerprint String
+
+  label String?
+
+  isActive Boolean @default(true)
+
+  lastSeenAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@unique([deviceToken, gymId])
+  @@index([memberId, gymId])
+}
+
+model Notification {
+  id String @id @default(uuid())
+
+  gymId String
+  gym   Gym    @relation(fields: [gymId], references: [id])
+
+  memberId String?
+  member   Member? @relation(fields: [memberId], references: [id])
+
+  type NotificationType
+
+  channel NotificationChannel @default(WHATSAPP)
+
+  status NotificationStatus @default(PENDING)
+
+  bodySnapshot Json?
+
+  sentAt DateTime?
+
+  errorMessage String?
+
+  createdAt DateTime @default(now())
+
+  @@index([gymId, type, createdAt])
+  @@index([memberId])
+}
+
+model AuditLog {
+  id String @id @default(uuid())
+
+  gymId String
+  gym   Gym    @relation(fields: [gymId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  action AuditAction
+
+  entity   String
+  entityId String
+
+  oldValue Json?
+  newValue Json?
+
+  ipAddress String?
+
+  createdAt DateTime @default(now())
+
+  @@index([gymId, createdAt])
+  @@index([entity, entityId])
+}
