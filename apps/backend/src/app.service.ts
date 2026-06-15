@@ -1,13 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { PrismaService } from './prisma/prisma.service';
 
 @Injectable()
 export class AppService {
-  constructor(
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  getHello(): string {
-    return `Running on ${this.configService.get('nodeEnv')}`;
+  getHealth() {
+    return {
+      status: 'ok',
+    };
+  }
+
+  async getDatabaseHealth() {
+    await this.prisma.$queryRaw`SELECT 1`;
+
+    return {
+      status: 'ok',
+      database: 'connected',
+    };
   }
 }
