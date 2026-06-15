@@ -14,12 +14,15 @@ import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from './current-user.decorator';
 
+import { Public } from './decorators/public.decorator';
+import { Roles } from './decorators/roles.decorator';
+
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
   ) {}
-
+  @Public()
   @Post('register-owner')
   async registerOwner(
     @Body() body: RegisterOwnerDto,
@@ -27,6 +30,7 @@ export class AuthController {
     return this.authService.registerOwner(body);
   }
 
+  @Public()
   @Post('login')
   async login(
     @Body() body: LoginDto,
@@ -35,10 +39,18 @@ export class AuthController {
   }
 
   @Get('me')
-  @UseGuards(JwtAuthGuard)
   getMe(
     @CurrentUser() user: any,
   ) {
     return user;
   }
+
+  @Get('owner-only')
+    @Roles('OWNER')
+    ownerOnly() {
+    return {
+    message: 'Owner access granted',
+  };
+}
+  
 }

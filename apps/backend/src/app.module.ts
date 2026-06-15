@@ -12,6 +12,14 @@ import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 
+import { APP_GUARD } from '@nestjs/core';
+
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+
+import { RolesGuard } from './auth/guards/roles.guard';
+
+import { ThrottlerModule } from '@nestjs/throttler';
+
 @Module({
   imports: [
   ConfigModule.forRoot({
@@ -19,11 +27,26 @@ import { AuthModule } from './auth/auth.module';
     load: [configuration],
     validationSchema: envValidationSchema,
   }),
+
+  ThrottlerModule.forRoot([
+  {
+    ttl: 60000,
+    limit: 100,
+  },
+]),
   PrismaModule,
   UsersModule,
   AuthModule,
-],
+  ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, {
+    provide: APP_GUARD,
+    useClass: JwtAuthGuard,
+  },
+
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },],
 })
 export class AppModule {}
