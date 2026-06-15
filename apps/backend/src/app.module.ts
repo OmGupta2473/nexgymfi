@@ -7,6 +7,8 @@ import { envValidationSchema } from './config/env.validation';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
+import { PrismaModule } from './prisma/prisma.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -14,6 +16,7 @@ import { AppService } from './app.service';
       load: [configuration],
       validationSchema: envValidationSchema,
     }),
+    PrismaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
