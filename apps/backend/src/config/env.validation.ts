@@ -17,9 +17,15 @@ export const envValidationSchema = Joi.object({
   SUPABASE_URL: Joi.string().optional().allow(''),
   SUPABASE_SERVICE_KEY: Joi.string().optional().allow(''),
 
-  JWT_ACCESS_SECRET: Joi.string().optional().allow(''),
+  JWT_ACCESS_SECRET: Joi.string().required(),
+  JWT_ACCESS_EXPIRES_IN: Joi.string().required(),
+
   JWT_REFRESH_SECRET: Joi.string().optional().allow(''),
   JWT_QR_SECRET: Joi.string().optional().allow(''),
+
+  // JWT_ACCESS_SECRET: Joi.string().optional().allow(''),
+  // JWT_REFRESH_SECRET: Joi.string().optional().allow(''),
+  // JWT_QR_SECRET: Joi.string().optional().allow(''),
 
   REDIS_URL: Joi.string().optional().allow(''),
 

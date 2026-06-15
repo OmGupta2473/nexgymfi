@@ -7,4 +7,9 @@ export default () => ({
 
   frontendUrl:
     process.env.FRONTEND_URL ?? 'http://localhost:3000',
+
+  jwtAccessSecret: process.env.JWT_ACCESS_SECRET,
+
+  jwtAccessExpiresIn:
+    process.env.JWT_ACCESS_EXPIRES_IN,
 });
