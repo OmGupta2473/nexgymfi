@@ -31,6 +31,13 @@ import { PaymentsModule } from './payments/payments.module';
 import { AttendanceModule } from './attendance/attendance.module';
 
 import { DashboardModule } from './dashboard/dashboard.module';
+
+import { AuditModule } from './audit/audit.module';
+import { AuditInterceptor } from './audit/audit.interceptor';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+
+
+
 @Module({
   imports: [
   ConfigModule.forRoot({
@@ -55,6 +62,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
   PaymentsModule,
   AttendanceModule,
   DashboardModule,
+  AuditModule,
   ],
   controllers: [AppController],
   providers: [AppService, {
@@ -65,6 +73,10 @@ import { DashboardModule } from './dashboard/dashboard.module';
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
+    },
+  {
+      provide: APP_INTERCEPTOR,
+      useClass: AuditInterceptor,
     },],
 })
 export class AppModule {}

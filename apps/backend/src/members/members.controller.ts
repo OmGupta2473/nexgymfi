@@ -16,8 +16,11 @@ import { CurrentUser } from '../auth/current-user.decorator';
 
 import { Roles } from '../auth/decorators/roles.decorator';
 
-import { Role } from '../../generated/prisma/enums';
+import { AuditAction, Role } from '../../generated/prisma/enums';
 import { UpdateMemberDto } from './dto/update-member.dto';
+
+import { Audit } from '../audit/decorators/audit.decorator';
+
 
 @Controller('members')
 export class MembersController {
@@ -30,6 +33,7 @@ export class MembersController {
         Role.MANAGER,
         Role.RECEPTIONIST,
     )
+    @Audit('Member', AuditAction.CREATE)
     @Post()
     async create(
         @CurrentUser() user: any,
@@ -73,6 +77,7 @@ export class MembersController {
         Role.OWNER,
         Role.MANAGER,
     )
+    @Audit('Member', AuditAction.UPDATE)
     @Patch(':id')
     async update(
         @CurrentUser() user: any,
@@ -86,6 +91,7 @@ export class MembersController {
         );
     }
     @Roles(Role.OWNER)
+    @Audit('Member', AuditAction.DELETE)
     @Delete(':id')
     async remove(
         @CurrentUser() user: any,

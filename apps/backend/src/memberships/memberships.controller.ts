@@ -13,9 +13,11 @@ import { CreateMembershipDto } from './dto/create-membership.dto';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 
-import { Role } from '../../generated/prisma/enums';
 import { FreezeMembershipDto } from './dto/freeze-membership.dto';
 import { ExtendMembershipDto } from './dto/extend-membership.dto';
+
+import { AuditAction, Role } from '../../generated/prisma/enums';
+import { Audit } from '../audit/decorators/audit.decorator';
 
 @Controller('memberships')
 export class MembershipsController {
@@ -28,6 +30,7 @@ export class MembershipsController {
     Role.MANAGER,
     Role.RECEPTIONIST,
   )
+  @Audit('Membership', AuditAction.CREATE)
   @Post()
   async create(
     @CurrentUser() user: any,
@@ -57,6 +60,7 @@ export class MembershipsController {
     Role.OWNER,
     Role.MANAGER,
   )
+  @Audit('Membership', AuditAction.UPDATE)
   @Post(':id/freeze')
   async freeze(
     @CurrentUser() user: any,
@@ -73,6 +77,7 @@ export class MembershipsController {
     Role.OWNER,
     Role.MANAGER,
   )
+  @Audit('Membership', AuditAction.UPDATE)
   @Post(':id/resume')
   async resume(
     @CurrentUser() user: any,
@@ -86,6 +91,7 @@ export class MembershipsController {
   @Roles(
     Role.OWNER,
   )
+  @Audit('Membership', AuditAction.UPDATE)
   @Post(':id/cancel')
   async cancel(
     @CurrentUser() user: any,
@@ -100,6 +106,7 @@ export class MembershipsController {
     Role.OWNER,
     Role.MANAGER,
   )
+  @Audit('Membership', AuditAction.UPDATE)
   @Post(':id/extend')
   async extend(
     @CurrentUser() user: any,

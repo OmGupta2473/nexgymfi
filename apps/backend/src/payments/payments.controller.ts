@@ -13,7 +13,8 @@ import { CreatePaymentDto } from './dto/create-payment.dto';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 
-import { Role } from '../../generated/prisma/enums';
+import { Audit } from '../audit/decorators/audit.decorator';
+import { AuditAction, Role } from '../../generated/prisma/enums';
 
 @Controller('payments')
 export class PaymentsController {
@@ -26,6 +27,7 @@ export class PaymentsController {
     Role.MANAGER,
     Role.RECEPTIONIST,
   )
+  @Audit('Payment', AuditAction.CREATE)
   @Post()
   async create(
     @CurrentUser() user: any,
