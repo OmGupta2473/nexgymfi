@@ -13,6 +13,15 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+  console.log(
+    'RAW ENV REFRESH SECRET:',
+    process.env.JWT_REFRESH_SECRET,
+  );
+
+  console.log(
+    'RAW ENV REFRESH EXPIRES:',
+    process.env.JWT_REFRESH_EXPIRES_IN,
+  );
 
   await app.listen(process.env.PORT ?? 3001);
 }

@@ -17,19 +17,15 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-          secret:
-              config.get<string>('jwtAccessSecret') ??
-              'dev-secret',
+        secret: config.get<string>('jwtAccessSecret')!,
         signOptions: {
-          expiresIn: (
-            config.get<string>('jwtAccessExpiresIn') ?? '15m'
-          ) as unknown as number,  // ← double cast, no import needed
+          // Cast to any to bypass the strict StringValue type check
+          expiresIn: config.get<string>('jwtAccessExpiresIn') as any,
         },
       }),
     }),
   ],
   controllers: [AuthController],
-    providers: [AuthService,
-        JwtStrategy,],
+  providers: [AuthService, JwtStrategy],
 })
 export class AuthModule {}
