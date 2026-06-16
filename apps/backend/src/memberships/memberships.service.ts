@@ -53,6 +53,7 @@ export class MembershipsService {
     const activeMembership =
       await this.prisma.membership.findFirst({
         where: {
+          gymId,
           memberId: data.memberId,
           status: MembershipStatus.ACTIVE,
         },
@@ -101,4 +102,156 @@ export class MembershipsService {
       },
     });
   }
+  async freeze(
+  gymId: string,
+  membershipId: string,
+  days: number,
+) {
+  const membership =
+    await this.prisma.membership.findFirst({
+      where: {
+        id: membershipId,
+        gymId,
+      },
+    });
+
+  if (!membership) {
+    throw new BadRequestException(
+      'Membership not found',
+    );
+  }
+
+  if (
+    membership.status !==
+    MembershipStatus.ACTIVE
+  ) {
+    throw new BadRequestException(
+      'Only active memberships can be frozen',
+    );
+  }
+
+  return this.prisma.membership.update({
+    where: {
+      id: membershipId,
+    },
+    data: {
+      status: MembershipStatus.FROZEN,
+      frozenAt: new Date(),
+      freezeDays: days,
+    },
+  });
+}
+async resume(
+  gymId: string,
+  membershipId: string,
+) {
+  const membership =
+    await this.prisma.membership.findFirst({
+      where: {
+        id: membershipId,
+        gymId,
+      },
+    });
+
+  if (!membership) {
+    throw new BadRequestException(
+      'Membership not found',
+    );
+  }
+
+  if (
+    membership.status !==
+    MembershipStatus.FROZEN
+  ) {
+    throw new BadRequestException(
+      'Membership is not frozen',
+    );
+  }
+
+  const newEndDate = new Date(
+    membership.endDate,
+  );
+
+  newEndDate.setDate(
+    newEndDate.getDate() +
+      membership.freezeDays,
+  );
+
+  return this.prisma.membership.update({
+    where: {
+      id: membershipId,
+    },
+    data: {
+      status: MembershipStatus.ACTIVE,
+      endDate: newEndDate,
+      frozenAt: null,
+      freezeDays: 0,
+    },
+  });
+}
+async cancel(
+  gymId: string,
+  membershipId: string,
+) {
+  const membership =
+    await this.prisma.membership.findFirst({
+      where: {
+        id: membershipId,
+        gymId,
+      },
+    });
+
+  if (!membership) {
+    throw new BadRequestException(
+      'Membership not found',
+    );
+  }
+
+  return this.prisma.membership.update({
+    where: {
+      id: membershipId,
+    },
+    data: {
+      status:
+        MembershipStatus.CANCELLED,
+    },
+  });
+}
+async extend(
+  gymId: string,
+  membershipId: string,
+  days: number,
+) {
+  const membership =
+    await this.prisma.membership.findFirst({
+      where: {
+        id: membershipId,
+        gymId,
+      },
+    });
+
+  if (!membership) {
+    throw new BadRequestException(
+      'Membership not found',
+    );
+  }
+
+  const newEndDate = new Date(
+    membership.endDate,
+  );
+
+  newEndDate.setDate(
+    newEndDate.getDate() + days,
+  );
+
+  return this.prisma.membership.update({
+    where: {
+      id: membershipId,
+    },
+    data: {
+      endDate: newEndDate,
+      extendedUntil: newEndDate,
+    },
+  });
+}
 }

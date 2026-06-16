@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Post,
+  Param,
 } from '@nestjs/common';
 
 import { MembershipsService } from './memberships.service';
@@ -13,12 +14,14 @@ import { CurrentUser } from '../auth/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 
 import { Role } from '../../generated/prisma/enums';
+import { FreezeMembershipDto } from './dto/freeze-membership.dto';
+import { ExtendMembershipDto } from './dto/extend-membership.dto';
 
 @Controller('memberships')
 export class MembershipsController {
   constructor(
     private readonly membershipsService: MembershipsService,
-  ) {}
+  ) { }
 
   @Roles(
     Role.OWNER,
@@ -48,6 +51,65 @@ export class MembershipsController {
   ) {
     return this.membershipsService.findAll(
       user.gymId,
+    );
+  }
+  @Roles(
+    Role.OWNER,
+    Role.MANAGER,
+  )
+  @Post(':id/freeze')
+  async freeze(
+    @CurrentUser() user: any,
+    @Param('id') id: string,
+    @Body() data: FreezeMembershipDto,
+  ) {
+    return this.membershipsService.freeze(
+      user.gymId,
+      id,
+      data.days,
+    );
+  }
+  @Roles(
+    Role.OWNER,
+    Role.MANAGER,
+  )
+  @Post(':id/resume')
+  async resume(
+    @CurrentUser() user: any,
+    @Param('id') id: string,
+  ) {
+    return this.membershipsService.resume(
+      user.gymId,
+      id,
+    );
+  }
+  @Roles(
+    Role.OWNER,
+  )
+  @Post(':id/cancel')
+  async cancel(
+    @CurrentUser() user: any,
+    @Param('id') id: string,
+  ) {
+    return this.membershipsService.cancel(
+      user.gymId,
+      id,
+    );
+  }
+  @Roles(
+    Role.OWNER,
+    Role.MANAGER,
+  )
+  @Post(':id/extend')
+  async extend(
+    @CurrentUser() user: any,
+    @Param('id') id: string,
+    @Body() data: ExtendMembershipDto,
+  ) {
+    return this.membershipsService.extend(
+      user.gymId,
+      id,
+      data.days,
     );
   }
 }
