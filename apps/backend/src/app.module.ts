@@ -24,6 +24,13 @@ import { PlansModule } from './plans/plans.module';
 
 import { MembersModule } from './members/members.module';
 
+import { MembershipsModule } from './memberships/memberships.module';
+
+import { PaymentsModule } from './payments/payments.module';
+
+import { AttendanceModule } from './attendance/attendance.module';
+
+import { DashboardModule } from './dashboard/dashboard.module';
 @Module({
   imports: [
   ConfigModule.forRoot({
@@ -44,6 +51,10 @@ import { MembersModule } from './members/members.module';
   AuthModule,
   PlansModule,
   MembersModule,
+  MembershipsModule,
+  PaymentsModule,
+  AttendanceModule,
+  DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService, {

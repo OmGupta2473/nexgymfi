@@ -7,8 +7,6 @@ import { PrismaService } from '../prisma/prisma.service';
 
 import { CreatePlanDto } from './dto/create-plan.dto';
 
-import { Param } from '@nestjs/common';
-import { Patch } from '@nestjs/common';
 import { UpdatePlanDto } from './dto/update-plan.dto';
 @Injectable()
 export class PlansService {
@@ -25,6 +23,7 @@ export class PlansService {
                 where: {
                     gymId,
                     name: data.name,
+                    archivedAt: null,
                 },
             });
 
