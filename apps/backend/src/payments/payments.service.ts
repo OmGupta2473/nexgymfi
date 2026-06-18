@@ -1,60 +1,30 @@
-import {
-  BadRequestException,
-  Injectable,
-} from '@nestjs/common';
-
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-
 import { CreatePaymentDto } from './dto/create-payment.dto';
-
-import {
-  PaymentStatus,
-} from '../../generated/prisma/enums';
+import { PaymentStatus } from '../../generated/prisma/enums';
+import { randomBytes } from 'crypto'; // Required for collision safety
 
 @Injectable()
 export class PaymentsService {
-  constructor(
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  async create(
-    gymId: string,
-    userId: string,
-    data: CreatePaymentDto,
-  ) {
-    const member =
-      await this.prisma.member.findFirst({
-        where: {
-          id: data.memberId,
-          gymId,
-          deletedAt: null,
-        },
-      });
+  async create(gymId: string, userId: string, data: CreatePaymentDto) {
+    const member = await this.prisma.member.findFirst({
+      where: { id: data.memberId, gymId, deletedAt: null },
+    });
 
-    if (!member) {
-      throw new BadRequestException(
-        'Member not found',
-      );
-    }
+    if (!member) throw new BadRequestException('Member not found');
 
     if (data.membershipId) {
-      const membership =
-        await this.prisma.membership.findFirst({
-          where: {
-            id: data.membershipId,
-            gymId,
-          },
-        });
-
-      if (!membership) {
-        throw new BadRequestException(
-          'Membership not found',
-        );
-      }
+      const membership = await this.prisma.membership.findFirst({
+        where: { id: data.membershipId, gymId },
+      });
+      if (!membership) throw new BadRequestException('Membership not found');
     }
 
-    const receiptNumber =
-      `PAY-${Date.now()}`;
+    // Fix: Added random suffix to prevent database unique constraint collisions
+    const suffix = randomBytes(3).toString('hex').toUpperCase();
+    const receiptNumber = `PAY-${Date.now()}-${suffix}`;
 
     return this.prisma.payment.create({
       data: {
@@ -62,16 +32,11 @@ export class PaymentsService {
         memberId: data.memberId,
         membershipId: data.membershipId,
         recordedById: userId,
-
         amount: Number(data.amount),
-
         type: data.type,
         method: data.method,
-
         status: PaymentStatus.COMPLETED,
-
         receiptNumber,
-
         notes: data.notes,
       },
     });
@@ -79,32 +44,16 @@ export class PaymentsService {
 
   async findAll(gymId: string) {
     return this.prisma.payment.findMany({
-      where: {
-        gymId,
-      },
-      include: {
-        member: true,
-        membership: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      where: { gymId },
+      include: { member: true, membership: true },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
-  async findOne(
-    gymId: string,
-    paymentId: string,
-  ) {
+  async findOne(gymId: string, paymentId: string) {
     return this.prisma.payment.findFirst({
-      where: {
-        id: paymentId,
-        gymId,
-      },
-      include: {
-        member: true,
-        membership: true,
-      },
+      where: { id: paymentId, gymId },
+      include: { member: true, membership: true },
     });
   }
 }

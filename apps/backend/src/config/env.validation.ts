@@ -1,4 +1,4 @@
-    import * as Joi from 'joi';
+import * as Joi from 'joi';
 
 export const envValidationSchema = Joi.object({
   PORT: Joi.number().default(3001),
@@ -14,21 +14,16 @@ export const envValidationSchema = Joi.object({
   DATABASE_URL: Joi.string().optional().allow(''),
   DIRECT_URL: Joi.string().optional().allow(''),
 
-  SUPABASE_URL: Joi.string().optional().allow(''),
-  SUPABASE_SERVICE_KEY: Joi.string().optional().allow(''),
-
   JWT_ACCESS_SECRET: Joi.string().required(),
   JWT_ACCESS_EXPIRES_IN: Joi.string().required(),
 
-  JWT_REFRESH_SECRET: Joi.string().optional().allow(''),
+  // Fixed: Refresh secrets are now strictly required for production safety
+  JWT_REFRESH_SECRET: Joi.string().required(),
+  JWT_REFRESH_EXPIRES_IN: Joi.string().required(),
+  
   JWT_QR_SECRET: Joi.string().optional().allow(''),
 
-  // JWT_ACCESS_SECRET: Joi.string().optional().allow(''),
-  // JWT_REFRESH_SECRET: Joi.string().optional().allow(''),
-  // JWT_QR_SECRET: Joi.string().optional().allow(''),
-
   REDIS_URL: Joi.string().optional().allow(''),
-
   INTERAKT_API_KEY: Joi.string().optional().allow(''),
   SENTRY_DSN: Joi.string().optional().allow(''),
 }).unknown(true);
