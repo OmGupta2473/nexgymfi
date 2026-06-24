@@ -1,10 +1,17 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { ConfigService } from '@nestjs/config';
 
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const config = app.get(ConfigService);
+
+  app.enableCors({
+    origin: config.get<string>('frontendUrl') ?? 'http://localhost:3000',
+    credentials: true,
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -13,16 +20,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
-  console.log(
-    'RAW ENV REFRESH SECRET:',
-    process.env.JWT_REFRESH_SECRET,
-  );
 
-  console.log(
-    'RAW ENV REFRESH EXPIRES:',
-    process.env.JWT_REFRESH_EXPIRES_IN,
-  );
-
-  await app.listen(process.env.PORT ?? 3001);
+  await app.listen(config.get<number>('port') ?? 3001);
 }
 bootstrap();

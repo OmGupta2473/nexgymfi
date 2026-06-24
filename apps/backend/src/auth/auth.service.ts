@@ -174,7 +174,8 @@ export class AuthService {
       { ...payload, jti: randomUUID() },
       {
         secret: this.config.get<string>('jwtAccessSecret')!,
-        expiresIn: this.config.get<string>('jwtAccessExpiresIn') as any,
+        expiresIn: (this.config.get<string>('jwtAccessExpiresIn') ??
+          '1h') as any,
       },
     );
   }
@@ -184,7 +185,8 @@ export class AuthService {
       { ...payload, jti: randomUUID() },
       {
         secret: this.config.get<string>('jwtRefreshSecret')!,
-        expiresIn: this.config.get<string>('jwtRefreshExpiresIn') as any,
+        expiresIn: (this.config.get<string>('jwtRefreshExpiresIn') ??
+          '7d') as any,
       },
     );
   }

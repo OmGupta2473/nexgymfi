@@ -31,6 +31,7 @@ function Reveal({
 }: {
   children: React.ReactNode;
   delay?: number;
+  key?: React.Key;
 }) {
   return (
     <motion.div
@@ -124,7 +125,12 @@ function PhoneFrame({
   );
 }
 
-function PhoneScreenTransition({ children }: { children: React.ReactNode }) {
+function PhoneScreenTransition({
+  children,
+}: {
+  children: React.ReactNode;
+  key?: React.Key;
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.97, filter: "blur(4px)" }}

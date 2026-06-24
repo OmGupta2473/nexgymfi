@@ -30,7 +30,6 @@ export class AuthController {
 
   @Post('logout')
   async logout(@CurrentUser() user: any) {
-    // CurrentUser decorator returns the object returned by JwtStrategy.validate()
     return this.authService.logout(user.userId);
   }
 

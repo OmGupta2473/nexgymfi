@@ -96,10 +96,13 @@ model Gym {
   name String
   slug String @unique
 
+  email    String?
   phone    String?
   address  String?
   timezone String  @default("Asia/Kolkata")
   logoUrl  String?
+  openHours    String @default("06:00-22:00")
+  openWeekdays String @default("MON,TUE,WED,THU,FRI,SAT")
 
   subscriptionPlan   SubscriptionPlan   @default(FREE)
   subscriptionStatus SubscriptionStatus @default(TRIAL)
@@ -133,6 +136,7 @@ model User {
 
   email String
   phone String?
+  supabaseUserId String? @unique
 
   passwordHash String
 

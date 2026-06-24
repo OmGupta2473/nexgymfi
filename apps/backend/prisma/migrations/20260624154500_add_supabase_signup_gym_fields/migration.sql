@@ -1,0 +1,9 @@
+ALTER TABLE "Gym"
+ADD COLUMN "email" TEXT,
+ADD COLUMN "openHours" TEXT NOT NULL DEFAULT '06:00-22:00',
+ADD COLUMN "openWeekdays" TEXT NOT NULL DEFAULT 'MON,TUE,WED,THU,FRI,SAT';
+
+ALTER TABLE "User"
+ADD COLUMN "supabaseUserId" TEXT;
+
+CREATE UNIQUE INDEX "User_supabaseUserId_key" ON "User"("supabaseUserId");

@@ -21,7 +21,21 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     // CRITICAL: Check database to see if session was revoked (tokenVersion incremented)
     const user = await this.prisma.user.findUnique({
       where: { id: payload.sub },
-      select: { id: true, gymId: true, email: true, role: true, tokenVersion: true, isActive: true },
+      select: {
+        id: true,
+        gymId: true,
+        email: true,
+        role: true,
+        tokenVersion: true,
+        isActive: true,
+        gym: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+      },
     });
 
     if (!user || !user.isActive) {
@@ -37,6 +51,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       gymId: user.gymId,
       email: user.email,
       role: user.role,
+      gym: user.gym,
     };
   }
 }
